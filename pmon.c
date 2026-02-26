@@ -1,6 +1,10 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+#include <linux/sched.h>
+#include <linux/sched/signal.h>
+#include <net/sock.h>
+#include <linux/fs.h>
 
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
@@ -12,7 +16,11 @@ static unsigned int hook_func(void *priv,
                               struct sk_buff *skb,
                               const struct nf_hook_state *state)
 {
-    printk(KERN_INFO "PMON: Outgoing packet intercepted\n");
+    if (!skb)
+        return NF_ACCEPT;
+
+    printk(KERN_INFO "PMON: PID %d sent a packet\n", current->pid);
+
     return NF_ACCEPT;
 }
 
